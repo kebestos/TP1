@@ -10,9 +10,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Debug;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -34,11 +37,12 @@ public class PictureView extends View {
 
     private ArrayList<String> listImages;
 
-    private ArrayList<Bitmap> listBitmap;
+    private ArrayList<BitmapDrawable> listBitmap;
 
     //dimension of the screen
     private int width;
     private int height;
+
 
     //scale
     private ScaleGestureDetector mScaleGestureDetector;
@@ -73,19 +77,19 @@ public class PictureView extends View {
         //temporary variable to fix the screen
         int templeft=0;
         int temptop=0;
-        int tempWidth = width/column;
-        int tempHeight = height/line;
+        int tempWidth = (int) ((width/column)*mScale);
+        int tempHeight = (int) ((height/line)*mScale);
 
+        //Log.d("canvas", "Draw");
+        for(BitmapDrawable bD : listBitmap){
 
-        for(Bitmap bitmap : listBitmap){
-
-            BitmapDrawable bD = new BitmapDrawable(bitmap);
             bD.setBounds(templeft,temptop,tempWidth,tempHeight);
             bD.draw(canvas);
 
-            if(tempWidth == width){
+            /*if(tempWidth == width){
                 tempHeight += height/ line;
                 temptop += height/ line;
+                Log.d("canvas", "top");
             }
 
             if(tempWidth != width){
@@ -94,6 +98,20 @@ public class PictureView extends View {
             }
             else{
                 tempWidth = width/ column;
+                templeft = 0;
+            }*/
+             if(tempWidth >= width){
+                tempHeight += height/ line;
+                temptop += height/ line;
+                //Log.d("canvas", "top");
+            }
+
+            if(tempWidth < width){
+                templeft += width/ column;
+                tempWidth += width/ column;
+            }
+            else{
+                tempWidth = (int) ((width/column)*mScale);
                 templeft = 0;
             }
         }
@@ -124,8 +142,8 @@ public class PictureView extends View {
     }
 
     @SuppressLint("WrongThread")
-    private ArrayList<Bitmap> saveAndCompressShownImage(){
-        ArrayList<Bitmap> bitmaplist = new ArrayList<Bitmap>();
+    private ArrayList<BitmapDrawable> saveAndCompressShownImage(){
+        ArrayList<BitmapDrawable> bitmaplist = new ArrayList<BitmapDrawable>();
 
         for(String fileP : listImages){
             Bitmap bitmap = null;
@@ -139,7 +157,8 @@ public class PictureView extends View {
 
                 ByteArrayOutputStream boas = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 20, boas);
-                bitmaplist.add(bitmap);
+                BitmapDrawable bD = new BitmapDrawable(bitmap);
+                bitmaplist.add(bD);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -151,7 +170,8 @@ public class PictureView extends View {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScale *= detector.getScaleFactor();
-
+            //mScale = Math.max(0.1f, Math.min(mScale, 10.0f));
+           // Log.d("Editable", "sCALE"+mScale);
             invalidate();
             return true;
         }
@@ -161,18 +181,25 @@ public class PictureView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         mScaleGestureDetector.onTouchEvent(event);
 
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+        /*switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_MOVE:
+                for(BitmapDrawable bD : listBitmap){
+                    //Rect bot = bD.getBounds();
+                    //bD.setBounds(Math.round(bot.left*mScale),Math.round(bot.top*mScale),Math.round(bot.right*mScale),Math.round(bot.bottom*mScale));
+                    //tempWidth *= mScale;
+                    //tempHeight *= mScale;
 
+                }
+                //Log.d("Editable", "MOOVE");
                 invalidate();
                 break;
             case MotionEvent.ACTION_CANCEL:
 
                 invalidate();
                 break;
-        }
+        }*/
         return true;
     }
 }
