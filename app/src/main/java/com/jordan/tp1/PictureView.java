@@ -30,8 +30,8 @@ import java.util.ArrayList;
 public class PictureView extends View {
 
     //number of line and column where affect the images
-    private static final int column = 5;
-    private static final int line = 5;
+    private static  int column = 5;
+    private static  int line = 5;
 
     private Paint mPaint;
 
@@ -86,27 +86,12 @@ public class PictureView extends View {
             bD.setBounds(templeft,temptop,tempWidth,tempHeight);
             bD.draw(canvas);
 
-            /*if(tempWidth == width){
+             if(tempWidth >= (width/column)*(column-1)){
                 tempHeight += height/ line;
                 temptop += height/ line;
-                Log.d("canvas", "top");
             }
 
-            if(tempWidth != width){
-                templeft += width/ column;
-                tempWidth += width/ column;
-            }
-            else{
-                tempWidth = width/ column;
-                templeft = 0;
-            }*/
-             if(tempWidth >= width){
-                tempHeight += height/ line;
-                temptop += height/ line;
-                //Log.d("canvas", "top");
-            }
-
-            if(tempWidth < width){
+            if(tempWidth < (width/column)*(column-1)){
                 templeft += width/ column;
                 tempWidth += width/ column;
             }
@@ -170,8 +155,16 @@ public class PictureView extends View {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScale *= detector.getScaleFactor();
-            //mScale = Math.max(0.1f, Math.min(mScale, 10.0f));
-           // Log.d("Editable", "sCALE"+mScale);
+            Log.d("Editable", "scaale" + mScale);
+
+            if(mScale < 0.95f && mScale > 0.5f){
+                column =6;
+                line = 6;
+            }
+            else if(mScale < 0.5f && mScale > 0){
+                column =7;
+                line = 7;
+            }
             invalidate();
             return true;
         }
