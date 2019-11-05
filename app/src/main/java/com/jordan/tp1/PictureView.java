@@ -30,8 +30,8 @@ import java.util.ArrayList;
 public class PictureView extends View {
 
     //number of line and column where affect the images
-    private static  int column = 5;
-    private static  int line = 5;
+    private static  int column = 1;
+    private static  int line = 1;
 
     private Paint mPaint;
 
@@ -79,6 +79,8 @@ public class PictureView extends View {
         int temptop=0;
         int tempWidth = (int) ((width/column)*mScale);
         int tempHeight = (int) ((height/line)*mScale);
+        int tempWidthDeux = width/column;
+
 
         //Log.d("canvas", "Draw");
         for(BitmapDrawable bD : listBitmap){
@@ -86,14 +88,14 @@ public class PictureView extends View {
             bD.setBounds(templeft,temptop,tempWidth,tempHeight);
             bD.draw(canvas);
 
-             if(tempWidth >= (width/column)*(column-1)){
-                tempHeight += height/ line;
-                temptop += height/ line;
+            if(tempWidth >=((width/column)) * (column -1)){
+                tempHeight += height/line;
+                temptop += height/line;
             }
 
-            if(tempWidth < (width/column)*(column-1)){
-                templeft += width/ column;
-                tempWidth += width/ column;
+            if(tempWidth < ((width/column)) * (column -1)){
+                templeft += width/column;
+                tempWidth += width/column;
             }
             else{
                 tempWidth = (int) ((width/column)*mScale);
@@ -157,13 +159,40 @@ public class PictureView extends View {
             mScale *= detector.getScaleFactor();
             Log.d("Editable", "scaale" + mScale);
 
-            if(mScale < 0.95f && mScale > 0.5f){
+            if(mScale<0.4f){
+                mScale = 0.4f;
+            }
+            else if(mScale > 1.f){
+                mScale = 1.f;
+            }
+
+            if(mScale < 0.4f && mScale > 0){
+                column =7;
+                line = 7;
+            }
+            else if(mScale < 0.5f && mScale > 0.4f){
                 column =6;
                 line = 6;
             }
-            else if(mScale < 0.5f && mScale > 0){
-                column =7;
-                line = 7;
+            else if(mScale < 0.6f && mScale > 0.5f){
+                column =5;
+                line = 5;
+            }
+            else if(mScale < 0.7f && mScale > 0.6f ){
+                column =4;
+                line = 4;
+            }
+            else if(mScale < 0.8f && mScale > 0.7f ){
+                column =3;
+                line = 3;
+            }
+            else if(mScale < 0.9f && mScale > 0.8f ){
+                column =2;
+                line = 2;
+            }
+            else if(mScale < 1f && mScale > 0.90f ){
+                column =1;
+                line = 1;
             }
             invalidate();
             return true;
