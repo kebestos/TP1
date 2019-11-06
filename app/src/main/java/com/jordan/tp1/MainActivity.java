@@ -13,33 +13,50 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    static int PReqCode = 1;
+    private static final int STORAGE_PERMISSION_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Verify the storage permission
-        permissionReadStorage();
-
-        //Open the View
-        PictureView v = new PictureView(this);
-        setContentView(v);
-
+        checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
     }
 
-    //Permission to access of the storage
-    private void permissionReadStorage() {
-        if(ContextCompat.checkSelfPermission( this,Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
+    // Check and request permission
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
+                == PackageManager.PERMISSION_DENIED) {
 
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)){
-                Toast.makeText(this,"Please accept for required permission",Toast.LENGTH_SHORT).show();
-            }
-            else{
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PReqCode);
+            // Requesting the permission
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[] { permission },
+                    requestCode);
+        }
+        else {
+            PictureView v = new PictureView(this);
+            setContentView(v);
+        }
+    }
+
+    // When you accept or decline a permission, this function is called
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
+                //Open the View
+                PictureView v = new PictureView(this);
+                setContentView(v);
+
+            } else {
+                Toast.makeText(MainActivity.this,
+                        "Storage Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }
