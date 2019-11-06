@@ -10,12 +10,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.PointF;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Debug;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
@@ -23,10 +19,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Scroller;
-
-import androidx.core.widget.ScrollerCompat;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,13 +47,6 @@ public class PictureView extends View {
 
 
     //Scroll
-    private PointF mTouch = new PointF(); // Touch point
-    //private float initialTouchX; // start touch point
-    //private Scroller mScroller;
-    //private float deltaX;
-    //private float deltaY;
-    //private float initialTouchY;
-
     private static int MIN_SWIPE_DISTANCE_X = 100;
     private static int MIN_SWIPE_DISTANCE_Y = 100;
 
@@ -106,10 +91,7 @@ public class PictureView extends View {
         int temptop=0;
         int tempWidth = (int) ((width/column)*mScale);
         int tempHeight = (int) ((height/line)*mScale);
-        int tempWidthDeux = width/column;
 
-
-        //Log.d("canvas", "Draw");
         for(BitmapDrawable bD : listBitmap){
 
             bD.setBounds(templeft,temptop,tempWidth,tempHeight);
@@ -131,6 +113,7 @@ public class PictureView extends View {
         }
     }
 
+    // Return our image list
     private ArrayList<String> getAllShownImagesPath(Activity activity) {
         Uri uri;
         Cursor cursor;
@@ -155,6 +138,7 @@ public class PictureView extends View {
         return listOfAllImages;
     }
 
+    // Compress images
     @SuppressLint("WrongThread")
     private ArrayList<BitmapDrawable> saveAndCompressShownImage(){
         ArrayList<BitmapDrawable> bitmaplist = new ArrayList<BitmapDrawable>();
@@ -180,6 +164,7 @@ public class PictureView extends View {
         return bitmaplist;
     }
 
+    // Scale Management
     public class ScaleGesture extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -233,60 +218,39 @@ public class PictureView extends View {
         return true;
     }
 
-    /*public boolean doTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                Log.d("DEBUG", "doTouchEvent: ACTION DOWN");
-                //Log.d("DEBUG", "doTouchEvent->initialTouch = " + initialTouchX);
-                getParent().requestDisallowInterceptTouchEvent(true);
-                initialTouchX = event.getX();
-                initialTouchY = event.getY();
-                this.postInvalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                Log.d("DEBUG", "doTouchEvent: ACTION MOVE");
-                mTouch.x = event.getX();
-                float currentY = event.getY();
-                //Log.d("DEBUG", "doTouchEvent->mTouch.x = " + mTouch.x);
-                //Log.d("DEBUG", "doTouchEvent->mTouch.y = " + mTouch.y);
-                deltaY = currentY - initialTouchY;
-                if(initialTouchY < currentY){
-                    Log.d("DEBUG", "SCROLL BAS");
-                    scrollBy(0,(int)deltaY);
-                }
-                else{
-                    Log.d("DEBUG", "SCROLL HAUT");
-                    scrollBy(0,(int)deltaY * (-1));
-                }
-                this.postInvalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                Log.d("DEBUG", "doTouchEvent: ACTION UP");
-                getParent().requestDisallowInterceptTouchEvent(false);
-                this.postInvalidate();
-                break;
-
-            default :
-                return super.onTouchEvent(event);
-        }
-        return true;
-    }*/
-
     public class DetectSwipeGestureListener extends GestureDetector.SimpleOnGestureListener{
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             float deltaY = e1.getY() - e2.getY();
-
+            float deltaX = e1.getX() - e2.getX();
+            
             float deltaYabs = Math.abs(deltaY);
+            float deltaXabs = Math.abs(deltaX);
 
+            // Swipe DOWN & UP
             if(deltaYabs >= MIN_SWIPE_DISTANCE_Y && deltaYabs <= MAX_SWIPE_DISTANCE_Y){
                 if(deltaY > 0){
-                    scrollBy(0,100);
+                    Log.d("DEBUG", "SCROLL DOWN");
+                    scrollBy(0,(int)deltaY);
                 }
                 else{
-                    scrollBy(0,-100);
+                    Log.d("DEBUG", "SCROLL UP");
+                    scrollBy(0,(int)deltaY);
                 }
             }
+
+            // SWIPE LEFT & RIGHT
+            if(deltaXabs >= MIN_SWIPE_DISTANCE_X && deltaXabs <= MAX_SWIPE_DISTANCE_X){
+                if(deltaX > 0){
+                    Log.d("DEBUG", "SCROLL LEFT");
+                    scrollBy((int)deltaX,0);
+                }
+                else {
+                    Log.d("DEBUG", "SCROLL RIGHT");
+                    scrollBy((int)deltaX,0);
+                }
+            }
+
             return true;
         }
     }
